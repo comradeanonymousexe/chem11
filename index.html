@@ -1,0 +1,629 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>General Chemistry Practice – CHE 101</title>
+<style>
+:root{
+  --bg:#f6f7fb; --card:#ffffff; --text:#1c2230; --muted:#5b6579; --line:#e1e5ee;
+  --accent:#3b5bdb; --accent-soft:#e7ecff; --good:#1f9d55; --good-soft:#e3f6ea;
+  --warn:#d9822b; --warn-soft:#fdf0e1; --ans:#f2f6ff; --code:#eef1f7;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#12151c; --card:#1b1f29; --text:#e8ebf2; --muted:#9aa4b8; --line:#2b3140;
+    --accent:#8ba3ff; --accent-soft:#232c4d; --good:#4cc784; --good-soft:#18332a;
+    --warn:#f0a258; --warn-soft:#3a2b19; --ans:#1f2536; --code:#252b3a;
+  }
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.wrap{max-width:860px;margin:0 auto;padding:0 16px 60px}
+header{padding:28px 0 12px}
+h1{margin:0 0 4px;font-size:1.6rem}
+.sub{color:var(--muted);font-size:.95rem}
+.stats{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0 8px;align-items:center}
+.pill{background:var(--card);border:1px solid var(--line);border-radius:999px;padding:4px 12px;font-size:.85rem;color:var(--muted)}
+.bar{flex:1 1 160px;height:8px;background:var(--line);border-radius:99px;overflow:hidden;min-width:120px}
+.bar i{display:block;height:100%;background:var(--good);width:0;transition:width .3s}
+.topics{position:sticky;top:0;z-index:5;background:var(--bg);padding:10px 0;display:flex;gap:8px;overflow-x:auto;border-bottom:1px solid var(--line);scrollbar-width:thin}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 14px;border-radius:999px;font:inherit;font-size:.88rem;cursor:pointer;white-space:nowrap}
+.chip:hover{border-color:var(--accent)}
+.chip.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.chip small{opacity:.75;margin-left:4px}
+.tools{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--text);padding:7px 14px;border-radius:8px;font:inherit;font-size:.88rem;cursor:pointer}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.good.on{background:var(--good-soft);border-color:var(--good);color:var(--good)}
+.btn.warn.on{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.topic-title{margin:26px 0 4px;font-size:1.2rem}
+.topic-desc{color:var(--muted);font-size:.9rem;margin:0 0 12px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 14px}
+.card.done{border-left:4px solid var(--good)}
+.card.review{border-left:4px solid var(--warn)}
+.meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.qid{font-weight:700;color:var(--accent)}
+.tag{font-size:.74rem;background:var(--accent-soft);color:var(--accent);padding:2px 9px;border-radius:99px}
+.tag.or{background:var(--warn-soft);color:var(--warn)}
+.q{margin:0 0 12px}
+.q ul,.q ol{margin:6px 0 0}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.answer{display:none;margin-top:14px;background:var(--ans);border:1px solid var(--line);border-radius:10px;padding:12px 16px}
+.answer.open{display:block}
+.answer h4{margin:10px 0 4px;font-size:.78rem;letter-spacing:.06em;text-transform:uppercase;color:var(--accent)}
+.answer h4:first-child{margin-top:0}
+.answer p{margin:4px 0}
+.answer ul,.answer ol{margin:4px 0;padding-left:22px}
+.final{background:var(--good-soft);border-left:3px solid var(--good);padding:6px 12px;border-radius:6px;margin:8px 0;font-weight:600}
+.eq{background:var(--code);padding:6px 12px;border-radius:6px;margin:6px 0;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.92rem;overflow-x:auto}
+table{border-collapse:collapse;margin:8px 0;font-size:.9rem}
+td,th{border:1px solid var(--line);padding:5px 10px;text-align:left}
+th{background:var(--code)}
+svg{max-width:100%;height:auto}
+svg text{fill:var(--text);font-family:system-ui,sans-serif}
+.empty{color:var(--muted);text-align:center;padding:30px}
+footer{color:var(--muted);font-size:.82rem;margin-top:30px;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <h1>⚗️ General Chemistry Practice</h1>
+  <div class="sub">CHE 101 · Final 2025 &amp; Midterm 2016 questions, grouped by topic. Try each one first, then reveal the answer.</div>
+  <div class="stats">
+    <span class="pill" id="stTotal"></span>
+    <span class="pill" id="stDone"></span>
+    <span class="pill" id="stRev"></span>
+    <div class="bar" title="Progress"><i id="barFill"></i></div>
+  </div>
+</header>
+
+<nav class="topics" id="topics" aria-label="Topics"></nav>
+
+<div class="tools">
+  <button class="btn" id="btnShowAll">Show all answers</button>
+  <button class="btn" id="btnHideAll">Hide all answers</button>
+  <button class="btn" id="btnFilter">Only show: Not mastered</button>
+  <button class="btn" id="btnReset">Reset progress</button>
+</div>
+
+<main id="main"></main>
+
+<footer>Answers were prepared for practice. Check key values (constants, pKa) against your textbook/class notes before the exam.</footer>
+</div>
+
+<script>
+/* ================= DATA ================= */
+const TOPICS = [
+{
+ id:"atomic", name:"Atomic Structure", desc:"Quantum numbers, de Broglie, hydrogen spectrum, electron configurations, Slater's rules.",
+ qs:[
+ {id:"A-1(a)", src:"Final 2025", marks:3,
+  q:`Indicate which of the following sets of quantum numbers (n, l, m<sub>l</sub>, m<sub>s</sub>) is unacceptable and explain why: (a) (1, 1, ½, ½) &nbsp; (b) (2, 1, 1, +½) &nbsp; (c) (4, 3, −2, +½)`,
+  ans:`<div class="final">Only set (a) is unacceptable.</div>`,
+  exp:`<p>Rules: n = 1, 2, 3…; l = 0 to n−1; m<sub>l</sub> = −l to +l (integers only); m<sub>s</sub> = ±½.</p>
+  <ul>
+   <li><b>(a) (1, 1, ½, ½)</b> – ✗ Two errors: for n = 1, l can only be 0 (l = 1 is not allowed), and m<sub>l</sub> = ½ is not an integer.</li>
+   <li><b>(b) (2, 1, 1, +½)</b> – ✓ n = 2, l = 1 (2p), m<sub>l</sub> = +1 is within −1…+1.</li>
+   <li><b>(c) (4, 3, −2, +½)</b> – ✓ n = 4, l = 3 (4f), m<sub>l</sub> = −2 is within −3…+3.</li>
+  </ul>`},
+ {id:"A-1(b)", src:"Final 2025", marks:2,
+  q:`How does de Broglie's hypothesis account for the fact that the energies of the electron in a hydrogen atom are quantized?`,
+  ans:`<p>Treating the electron as a <b>standing wave</b> around the nucleus allows only whole-number wavelengths in an orbit, so only certain angular momenta (and hence energies) are allowed.</p>`,
+  exp:`<p>For a stable orbit the wave must close on itself without destructive interference:</p>
+  <div class="eq">2πr = nλ, &nbsp; n = 1, 2, 3…</div>
+  <p>De Broglie wavelength: λ = h/mv. Substituting:</p>
+  <div class="eq">2πr = nh/mv &nbsp;⟹&nbsp; mvr = nh/2π</div>
+  <p>This is exactly Bohr's quantization of angular momentum. Since r and v depend on n, the energy E<sub>n</sub> = −13.6/n² eV also takes only discrete values. Non-integer wavelengths would interfere with themselves and cancel out.</p>`},
+ {id:"A-1(c)", src:"Final 2025", marks:5,
+  q:`State the names of the spectral series in the hydrogen spectrum. Write the Rydberg formula for hydrogen's spectral lines. Apply Bohr's model to explain the origin of spectral lines in the hydrogen atom.`,
+  ans:`<table>
+   <tr><th>Series</th><th>Ends at n₁</th><th>Region</th></tr>
+   <tr><td>Lyman</td><td>1</td><td>Ultraviolet</td></tr>
+   <tr><td>Balmer</td><td>2</td><td>Visible</td></tr>
+   <tr><td>Paschen</td><td>3</td><td>Infrared</td></tr>
+   <tr><td>Brackett</td><td>4</td><td>Infrared</td></tr>
+   <tr><td>Pfund</td><td>5</td><td>Far infrared</td></tr>
+   <tr><td>Humphreys</td><td>6</td><td>Far infrared</td></tr></table>
+   <div class="eq">1/λ = R<sub>H</sub> (1/n₁² − 1/n₂²), n₂ &gt; n₁, R<sub>H</sub> = 1.097 × 10⁷ m⁻¹</div>`,
+  exp:`<h4>Bohr's explanation</h4>
+  <ol>
+   <li>The electron moves only in certain stationary orbits with energy E<sub>n</sub> = −13.6 eV/n² and does not radiate while in one.</li>
+   <li>When the electron <b>jumps from a higher orbit (n₂) to a lower one (n₁)</b>, it emits a photon whose energy equals the difference: hν = E<sub>n₂</sub> − E<sub>n₁</sub>.</li>
+   <li>Putting in E<sub>n</sub> gives hν = 13.6 (1/n₁² − 1/n₂²) eV, which is the Rydberg formula (R<sub>H</sub> = 13.6 eV/hc).</li>
+   <li>Because the energy levels are discrete, only specific photon energies appear – producing sharp <b>lines</b> instead of a continuous spectrum. Absorption is the reverse process.</li>
+  </ol>`},
+ {id:"M-1", src:"Midterm 2016", marks:2.5,
+  q:`Calculate the wave number and wavelength of the spectral line in the spectrum of the hydrogen atom with excitation from the 2<sup>nd</sup> energy level to the 3<sup>rd</sup> energy level. R = 109737.31 cm⁻¹.`,
+  ans:`<div class="final">Wave number ≈ 1.524 × 10⁴ cm⁻¹; wavelength ≈ 6.56 × 10⁻⁵ cm = 656 nm (red, Balmer H-α)</div>`,
+  exp:`<div class="eq">ν̃ = R (1/n₁² − 1/n₂²) = 109737.31 × (1/2² − 1/3²)<br>
+  = 109737.31 × (1/4 − 1/9) = 109737.31 × 5/36<br>
+  = 15241.3 cm⁻¹</div>
+  <div class="eq">λ = 1/ν̃ = 1/15241.3 = 6.561 × 10⁻⁵ cm = 656.1 nm</div>
+  <p>This is the first line of the Balmer series (visible red). It is the same wavelength whether the electron is excited 2→3 (absorbed) or falls 3→2 (emitted).</p>`},
+ {id:"M-2", src:"Midterm 2016", marks:4,
+  q:`Write down the ground-state electronic configuration of the following atoms/ions and determine their position in the periodic table: Co<sup>2+</sup> (Z = 27), Cr (Z = 24), Cl<sup>−</sup> (Z = 17).`,
+  ans:`<table>
+   <tr><th>Species</th><th>Configuration</th><th>Position (of the element)</th></tr>
+   <tr><td>Co²⁺</td><td>1s² 2s² 2p⁶ 3s² 3p⁶ 3d⁷ = [Ar] 3d⁷</td><td>Period 4, Group 9, d-block</td></tr>
+   <tr><td>Cr</td><td>[Ar] 4s¹ 3d⁵</td><td>Period 4, Group 6, d-block</td></tr>
+   <tr><td>Cl⁻</td><td>1s² 2s² 2p⁶ 3s² 3p⁶ = [Ar]</td><td>Cl: Period 3, Group 17 (p-block, halogen)</td></tr></table>`,
+  exp:`<ul>
+   <li><b>Co</b> neutral is [Ar] 4s² 3d⁷. Cations lose the <b>4s</b> electrons first (outermost shell), so Co²⁺ = [Ar] 3d⁷.</li>
+   <li><b>Cr</b> is an exception: a half-filled 3d⁵ + 4s¹ is more stable than 4s² 3d⁴ (exchange energy and low repulsion).</li>
+   <li><b>Cl⁻</b> gains one electron into 3p (3p⁵ → 3p⁶), becoming isoelectronic with Ar.</li>
+   <li>Period = highest n; group for d-block = number of (n−1)d + ns electrons (Co: 7+2 = 9; Cr: 5+1 = 6); for p-block = 10 + (ns + np electrons) (Cl: 10 + 7 = 17).</li>
+  </ul>`},
+ {id:"M-5", src:"Midterm 2016", marks:5,
+  q:`What is meant by the notation 1s¹ and 3p³? Draw the shapes of s and d orbitals. Which of the following orbitals do not exist: 1p, 2s, 2d, 3p, 3d, 3f, 4g?`,
+  ans:`<p><b>1s¹</b>: one electron in the s subshell of the first shell. <b>3p³</b>: three electrons in the p subshell of the third shell.</p>
+  <div class="final">Orbitals that do not exist: 1p, 2d, 3f, 4g</div>`,
+  exp:`<p>Notation: <b>n</b> (shell number) + <b>letter</b> (subshell, l) + <b>superscript</b> (number of electrons).</p>
+  <p>Allowed subshells: l runs 0 to n−1, so n = 1 has only s; n = 2 has s, p; n = 3 has s, p, d; n = 4 has s, p, d, f. Thus 1p, 2d, 3f and 4g are impossible; 2s, 3p, 3d exist.</p>
+  <h4>Shapes</h4>
+  <svg viewBox="0 0 440 150" width="440" role="img" aria-label="s and d orbital shapes">
+   <g transform="translate(60,70)"><circle r="38" fill="#3b5bdb" fill-opacity=".35" stroke="#3b5bdb" stroke-width="2"/><text y="68" text-anchor="middle" font-size="13">s – spherical</text></g>
+   <g transform="translate(200,70)"><g fill="#d9822b" fill-opacity=".4" stroke="#d9822b" stroke-width="2">
+     <ellipse cx="22" cy="-22" rx="30" ry="12" transform="rotate(-45 22 -22)"/><ellipse cx="-22" cy="22" rx="30" ry="12" transform="rotate(-45 -22 22)"/>
+     <ellipse cx="-22" cy="-22" rx="30" ry="12" transform="rotate(45 -22 -22)" fill="#1f9d55" stroke="#1f9d55"/><ellipse cx="22" cy="22" rx="30" ry="12" transform="rotate(45 22 22)" fill="#1f9d55" stroke="#1f9d55"/></g>
+     <text y="82" text-anchor="middle" font-size="13">d (e.g. d<tspan font-size="10" dy="3">xy</tspan><tspan dy="-3">) – four lobes</tspan></text></g>
+   <g transform="translate(350,70)"><ellipse cx="0" cy="-33" rx="12" ry="30" fill="#3b5bdb" fill-opacity=".4" stroke="#3b5bdb" stroke-width="2"/><ellipse cx="0" cy="33" rx="12" ry="30" fill="#3b5bdb" fill-opacity=".4" stroke="#3b5bdb" stroke-width="2"/><ellipse cx="0" cy="0" rx="32" ry="8" fill="#1f9d55" fill-opacity=".4" stroke="#1f9d55" stroke-width="2"/><text y="82" text-anchor="middle" font-size="13">d<tspan font-size="10" dy="3">z²</tspan><tspan dy="-3"> – lobes + ring</tspan></text></g>
+  </svg>
+  <p>The s orbital is spherical with no angular nodes. Four of the five d orbitals have a cloverleaf shape (four lobes); d<sub>z²</sub> has two lobes along z with a ring in the xy-plane.</p>`},
+ {id:"M-6", src:"Midterm 2016", marks:3,
+  q:`Determine the effective nuclear charge experienced by a 3p electron in a calcium atom.`,
+  ans:`<div class="final">Z<sub>eff</sub> = 20 − 11.25 = 8.75</div>`,
+  exp:`<p>Use <b>Slater's rules</b>. Calcium (Z = 20): 1s² 2s²2p⁶ 3s²3p⁶ 4s². Slater groups: (1s)(2s,2p)(3s,3p)(3d)(4s).</p>
+  <table>
+   <tr><th>Electrons</th><th>Number</th><th>Shielding each</th><th>Total</th></tr>
+   <tr><td>Same group (3s, 3p), other than the one considered</td><td>7</td><td>0.35</td><td>2.45</td></tr>
+   <tr><td>n−1 shell (2s, 2p)</td><td>8</td><td>0.85</td><td>6.80</td></tr>
+   <tr><td>n−2 shell (1s)</td><td>2</td><td>1.00</td><td>2.00</td></tr>
+   <tr><td>Outer (4s)</td><td>2</td><td>0</td><td>0</td></tr></table>
+  <div class="eq">σ = 2.45 + 6.80 + 2.00 = 11.25<br>Z<sub>eff</sub> = Z − σ = 20 − 11.25 = 8.75</div>
+  <p>Electrons in higher groups (4s) do not shield a 3p electron.</p>`}
+ ]
+},
+{
+ id:"periodic", name:"Periodic Properties", desc:"Ionization energy, atomic/ionic radius, electronegativity, electron affinity.",
+ qs:[
+ {id:"A-2(a)", src:"Final 2025", marks:3,
+  q:`Two atoms have the electron configurations 1s²2s²2p⁶ and 1s²2s²2p⁶3s¹. The first ionization energy of one is 2080 kJ/mol and that of the other is 496 kJ/mol. Pair each ionization energy with one of the given electron configurations. Justify your choice.`,
+  ans:`<div class="final">1s²2s²2p⁶ (Ne) → 2080 kJ/mol &nbsp;|&nbsp; 1s²2s²2p⁶3s¹ (Na) → 496 kJ/mol</div>`,
+  exp:`<ul>
+   <li><b>Ne</b> has a stable, completely filled octet. Its outermost electron is in the 2nd shell, close to the nucleus and strongly attracted (high Z<sub>eff</sub>, little extra shielding). Removing it needs a lot of energy: 2080 kJ/mol.</li>
+   <li><b>Na</b> has a lone electron in the 3s orbital: a new shell, farther from the nucleus and well shielded by the 10 core electrons. It is easily lost: 496 kJ/mol.</li>
+   <li>Removing Na's 3s electron also gives the stable Ne-like core, which further favors ionization.</li>
+  </ul>`},
+ {id:"A-2(b)", src:"Final 2025", marks:2,
+  q:`Indicate which one of the two species is larger: (i) N³⁻ or F⁻; (ii) Fe²⁺ or Fe³⁺. Arrange the following atoms in order of decreasing atomic radius: Na, Al, P, Cl, Mg.`,
+  ans:`<p>(i) <b>N³⁻</b> is larger. (ii) <b>Fe²⁺</b> is larger.</p>
+  <div class="final">Decreasing radius: Na &gt; Mg &gt; Al &gt; P &gt; Cl</div>`,
+  exp:`<ul>
+   <li><b>(i)</b> N³⁻ and F⁻ are isoelectronic (10 electrons). N has 7 protons, F has 9. Fewer protons → weaker pull on the same electron cloud → larger ion.</li>
+   <li><b>(ii)</b> Fe³⁺ has lost one more electron than Fe²⁺, so less electron–electron repulsion and a higher effective nuclear charge per electron → smaller radius.</li>
+   <li><b>Order:</b> all five are in Period 3. Across a period, nuclear charge increases while shielding stays about the same, so radius decreases left to right: Na (Group 1) → Mg → Al → P → Cl (Group 17).</li>
+  </ul>`},
+ {id:"A-3(a)", src:"Final 2025", marks:2,
+  q:`Differentiate between the trends in electronegativity and electron affinity across a period.`,
+  ans:`<p>Both generally <b>increase left to right</b>, but electronegativity rises smoothly, while electron affinity has several irregularities.</p>`,
+  exp:`<table>
+   <tr><th></th><th>Electronegativity</th><th>Electron affinity</th></tr>
+   <tr><td>Meaning</td><td>Tendency of an atom <i>in a bond</i> to attract the shared pair</td><td>Energy released when an isolated gaseous atom gains an electron</td></tr>
+   <tr><td>Nature</td><td>Relative, dimensionless (Pauling scale)</td><td>Measurable energy (kJ/mol)</td></tr>
+   <tr><td>Trend across a period</td><td>Steady increase (smaller radius, higher Z<sub>eff</sub>)</td><td>Increases overall but with exceptions: Group 2 (full s), Group 15 (half-filled p) are lower than expected; noble gases ≈ 0 or positive</td></tr>
+   <tr><td>Largest in period</td><td>Halogen (F is the highest overall)</td><td>Halogen (Cl is actually higher than F)</td></tr></table>`},
+ {id:"M-3", src:"Midterm 2016", marks:4,
+  q:`Define ionization energy and electron affinity. Ionization energy is always a positive quantity, whereas electron affinity may be either positive or negative – explain.`,
+  ans:`<p><b>Ionization energy (IE):</b> minimum energy needed to remove the most loosely bound electron from a gaseous atom (X → X⁺ + e⁻).</p>
+  <p><b>Electron affinity (EA):</b> energy change when a gaseous atom accepts an electron (X + e⁻ → X⁻).</p>`,
+  exp:`<ul>
+   <li><b>IE is always positive (endothermic):</b> the electron is attracted to the nucleus, so energy must always be supplied to pull it away.</li>
+   <li><b>EA can be either sign:</b>
+    <ul>
+     <li>For most atoms (e.g. halogens) the incoming electron is attracted by the nucleus, so energy is <b>released</b> (ΔH negative, i.e. a favorable process).</li>
+     <li>For atoms with full or half-full subshells (noble gases, Be, Mg, N), the extra electron must go into a higher or already-occupied orbital, so energy must be <b>absorbed</b> (ΔH positive).</li>
+     <li>Second electron affinities (e.g. O⁻ → O²⁻) are always positive because of repulsion between the electron and an already negative ion.</li>
+    </ul></li>
+  </ul>`}
+ ]
+},
+{
+ id:"stoich", name:"Stoichiometry & Solutions", desc:"Mole calculations, gas volumes at STP, dilution.",
+ qs:[
+ {id:"A-2(c)", src:"Final 2025", marks:5,
+  q:`A solution of hydrochloric acid (HCl) of concentration 0.250 M reacts with calcium carbonate: 2HCl(aq) + CaCO₃(s) → CaCl₂(aq) + CO₂(g) + H₂O(l).
+  <ol type="i"><li>How many milliliters of 0.250 M HCl are required to react completely with 5.00 g of CaCO₃?</li>
+  <li>If the reaction is performed at STP, what volume of CO₂ gas is produced?</li>
+  <li>Explain how you would prepare 100 mL of 0.250 M HCl from a 2.00 M HCl stock solution.</li></ol>`,
+  ans:`<div class="final">(i) ≈ 400 mL &nbsp;|&nbsp; (ii) ≈ 1.12 L CO₂ &nbsp;|&nbsp; (iii) 12.5 mL stock diluted to 100 mL</div>`,
+  exp:`<h4>(i) Volume of HCl</h4>
+  <div class="eq">Molar mass CaCO₃ = 100.09 g/mol<br>
+  moles CaCO₃ = 5.00 / 100.09 = 0.04995 mol<br>
+  moles HCl = 2 × 0.04995 = 0.0999 mol (mole ratio 2:1)<br>
+  V = n/M = 0.0999 / 0.250 = 0.3996 L ≈ 400 mL</div>
+  <h4>(ii) Volume of CO₂ at STP</h4>
+  <div class="eq">1 mol CaCO₃ → 1 mol CO₂, so n(CO₂) = 0.04995 mol<br>
+  V = 0.04995 × 22.4 L/mol = 1.12 L</div>
+  <h4>(iii) Dilution (M₁V₁ = M₂V₂)</h4>
+  <div class="eq">2.00 × V₁ = 0.250 × 100 mL ⟹ V₁ = 12.5 mL</div>
+  <p>Procedure: pipette 12.5 mL of the 2.00 M stock into a 100 mL volumetric flask that already holds some distilled water (add acid to water), then add distilled water up to the 100 mL mark, stopper, and mix by inverting.</p>`}
+ ]
+},
+{
+ id:"acidbase", name:"Acids, Bases & Buffers", desc:"Acid strength, buffers, Henderson–Hasselbalch, polyprotic acids.",
+ qs:[
+ {id:"A-3(b)", src:"Final 2025", marks:2,
+  q:`Arrange the following acids in terms of increasing strength: HClO₃, H₂SO₄, H₂S₂O₃, H₃PO₄. Give the reasons for your justifications.`,
+  ans:`<div class="final">H₂S₂O₃ &lt; H₃PO₄ &lt; HClO₃ &lt; H₂SO₄</div>`,
+  exp:`<p>For oxyacids, strength rises as the <b>central atom's oxidation state</b> (and its electronegativity) increases, because it pulls electron density from the O–H bond and stabilizes the conjugate base.</p>
+  <table>
+   <tr><th>Acid</th><th>Central atom oxidation state</th></tr>
+   <tr><td>H₂S₂O₃</td><td>S ≈ +2 (average) – lowest</td></tr>
+   <tr><td>H₃PO₄</td><td>P = +5 (P is less electronegative than Cl)</td></tr>
+   <tr><td>HClO₃</td><td>Cl = +5 (more electronegative than P)</td></tr>
+   <tr><td>H₂SO₄</td><td>S = +6 – highest</td></tr></table>
+  <p><i>Note:</i> this is the standard textbook ordering using oxidation state/electronegativity. Experimental pKa values of thiosulfuric acid are unstable and vary by source, so follow the reasoning your course teaches.</p>`},
+ {id:"A-3(c)", src:"Final 2025", marks:3,
+  q:`A buffer is prepared by mixing 0.200 M acetic acid and 0.100 M sodium acetate. Calculate the pH, and explain how the Henderson–Hasselbalch equation simplifies buffer design. (K<sub>a</sub> of acetic acid = 1.8 × 10⁻⁵, pK<sub>a</sub> = 4.74–4.76)`,
+  ans:`<div class="final">pH = 4.75 + log(0.100/0.200) ≈ 4.45</div>`,
+  exp:`<div class="eq">pK<sub>a</sub> = −log(1.8 × 10⁻⁵) = 4.74<br>
+  pH = pK<sub>a</sub> + log([A⁻]/[HA]) = 4.74 + log(0.100/0.200)<br>
+  = 4.74 − 0.301 = 4.44 &nbsp;(≈ 4.45 with pK<sub>a</sub> = 4.76 gives 4.46)</div>
+  <p>The answer is about <b>4.4–4.5</b> depending on the pK<sub>a</sub> value used.</p>
+  <h4>How H–H simplifies buffer design</h4>
+  <ul>
+   <li>It avoids solving the full equilibrium (ICE table / quadratic) – the pH depends only on pK<sub>a</sub> and the <b>ratio</b> of base to acid.</li>
+   <li>Choose an acid whose pK<sub>a</sub> is within ±1 of the target pH, then set the ratio [A⁻]/[HA] to get the exact pH (ratio 0.1–10).</li>
+   <li>Buffer capacity is highest when [A⁻] = [HA] (pH = pK<sub>a</sub>); total concentration sets the capacity.</li>
+   <li>Diluting both components equally does not change the pH (ratio is unchanged).</li>
+  </ul>`},
+ {id:"A-3(b)OR", src:"Final 2025 (OR)", marks:2, or:true,
+  q:`Why are polyprotic acids (like H₃PO₄) weaker in subsequent ionization steps?`,
+  ans:`<p>Each further proton must be removed from an increasingly <b>negatively charged</b> species, which holds on to H⁺ more strongly.</p>`,
+  exp:`<div class="eq">H₃PO₄ ⇌ H⁺ + H₂PO₄⁻ &nbsp; K<sub>a1</sub> ≈ 7.5 × 10⁻³<br>
+  H₂PO₄⁻ ⇌ H⁺ + HPO₄²⁻ &nbsp; K<sub>a2</sub> ≈ 6.2 × 10⁻⁸<br>
+  HPO₄²⁻ ⇌ H⁺ + PO₄³⁻ &nbsp; K<sub>a3</sub> ≈ 4.8 × 10⁻¹³</div>
+  <ul>
+   <li>Electrostatic attraction: pulling a positive H⁺ away from an anion with charge −1, then −2, becomes harder.</li>
+   <li>In addition, the first ionization produces H⁺ which, through the common-ion effect, suppresses later ionizations.</li>
+   <li>So K<sub>a1</sub> &gt; K<sub>a2</sub> &gt; K<sub>a3</sub>, typically by factors of 10⁴–10⁶.</li>
+  </ul>`}
+ ]
+},
+{
+ id:"bonding", name:"Chemical Bonding", desc:"Polar covalent bonds, hybridization, Lewis structures, formal charge.",
+ qs:[
+ {id:"A-3(d)", src:"Final 2025", marks:3,
+  q:`What is a polar covalent bond? Describe how atoms in methane combine to form covalent bonds.`,
+  ans:`<p>A <b>polar covalent bond</b> is a bond in which the shared electron pair is unequally shared because the two atoms differ in electronegativity, creating partial charges (δ⁺ and δ⁻), e.g. H–Cl.</p>`,
+  exp:`<h4>Bonding in CH₄</h4>
+  <ol>
+   <li>Carbon (ground state 2s² 2p²) has only two unpaired electrons, but it forms four bonds.</li>
+   <li>One 2s electron is <b>promoted</b> to the empty 2p orbital: 2s¹ 2p³ (four unpaired electrons).</li>
+   <li>The 2s and three 2p orbitals <b>hybridize</b> into four equivalent <b>sp³</b> orbitals pointing to the corners of a tetrahedron (109.5°).</li>
+   <li>Each sp³ orbital overlaps head-on with an H 1s orbital, forming four identical C–H <b>σ bonds</b>, each sharing a pair of electrons.</li>
+  </ol>
+  <p>Each C–H bond is only slightly polar (ΔEN ≈ 0.35) and the symmetric tetrahedral shape cancels the dipoles, so methane is a nonpolar molecule.</p>`},
+ {id:"M-4", src:"Midterm 2016", marks:2.5,
+  q:`Draw the Lewis structure for the CO₃²⁻ ion and show the formal charges for each atom.`,
+  ans:`<div class="final">One C=O (O formal charge 0), two C–O⁻ (each −1), C = 0. Total = −2.</div>`,
+  exp:`<p>Total valence electrons: 4 (C) + 3×6 (O) + 2 (charge) = 24.</p>
+  <svg viewBox="0 0 260 190" width="260" role="img" aria-label="Lewis structure of carbonate">
+   <g stroke="currentColor" stroke-width="2" fill="none" style="color:var(--text)">
+    <line x1="130" y1="95" x2="130" y2="40"/><line x1="136" y1="95" x2="136" y2="40"/>
+    <line x1="130" y1="95" x2="85" y2="125"/><line x1="130" y1="95" x2="175" y2="125"/></g>
+   <g font-size="18" text-anchor="middle"><text x="133" y="100">C</text><text x="133" y="30">O</text><text x="75" y="140">O</text><text x="185" y="140">O</text></g>
+   <g font-size="13" text-anchor="middle"><text x="152" y="26">0</text><text x="54" y="125">−1</text><text x="208" y="125">−1</text><text x="150" y="88">0</text></g>
+   <text x="130" y="180" text-anchor="middle" font-size="12">[ ]²⁻ , lone pairs omitted for clarity</text>
+  </svg>
+  <div class="eq">Formal charge = valence e⁻ − nonbonding e⁻ − ½(bonding e⁻)<br>
+  C: 4 − 0 − 4 = 0<br>
+  O (double bond): 6 − 4 − 2 = 0<br>
+  O (single bond): 6 − 6 − 1 = −1 (×2)</div>
+  <p>The double bond can be on any of the three oxygens, giving <b>three resonance structures</b>; the real ion has three equal C–O bonds (bond order 1⅓) with the −2 charge delocalized.</p>`}
+ ]
+},
+{
+ id:"gases", name:"Gases & Kinetic Theory", desc:"Maxwell distribution, mean free path, KMT, transport properties, critical phenomena.",
+ qs:[
+ {id:"A-3(a)OR", src:"Final 2025 (OR)", marks:3, or:true,
+  q:`What does the Maxwell speed distribution curve tell us? Does Maxwell's theory work for a sample of 200 molecules? Explain.`,
+  ans:`<p>The curve shows the <b>fraction of molecules having each speed</b> at a given temperature. For 200 molecules the theory works only roughly, since it is a statistical law that needs a very large number of molecules.</p>`,
+  exp:`<ul>
+   <li>Molecules have a <b>wide range of speeds</b>; the curve is asymmetric with a peak at the most probable speed (v<sub>mp</sub>), then average speed (v<sub>avg</sub>), then rms speed (v<sub>rms</sub>): v<sub>mp</sub> &lt; v<sub>avg</sub> &lt; v<sub>rms</sub>.</li>
+   <li>Raising T shifts the peak right and flattens/broadens the curve (more fast molecules, which explains faster reactions and evaporation).</li>
+   <li>At the same T, lighter molecules have a broader curve with a higher peak speed.</li>
+   <li>The area under the curve is 1 (all molecules).</li>
+  </ul>
+  <p><b>200 molecules:</b> the Maxwell distribution comes from statistics and assumes enormous numbers (~10²⁰ or more). With only 200 molecules the fluctuations are large, so the observed histogram would be jagged and deviate noticeably from the smooth curve. It would hold only approximately.</p>`},
+ {id:"A-3(c)OR", src:"Final 2025 (OR)", marks:5, or:true,
+  q:`The average distance traveled by a molecule between successive collisions is called the mean free path. For a given amount of gas, how does the mean free path depend on (a) density, (b) temperature at constant volume, (c) pressure at constant temperature, (d) volume at constant temperature, and (e) size of the atoms?`,
+  ans:`<div class="eq">λ = kT / (√2 π d² P) = V / (√2 π d² N)</div>
+  <table>
+   <tr><th>Variable</th><th>Effect on λ</th></tr>
+   <tr><td>(a) Density ↑</td><td>λ ∝ 1/density – decreases</td></tr>
+   <tr><td>(b) T at constant V</td><td>No change (independent of T)</td></tr>
+   <tr><td>(c) P at constant T</td><td>λ ∝ 1/P – decreases</td></tr>
+   <tr><td>(d) V at constant T</td><td>λ ∝ V – increases</td></tr>
+   <tr><td>(e) Atom size (d)</td><td>λ ∝ 1/d² – larger atoms, shorter λ</td></tr></table>`,
+  exp:`<p>Using λ = V/(√2 π d² N), where N/V is the number density:</p>
+  <ul>
+   <li><b>(a)</b> More molecules per unit volume means collisions are more frequent, so the path between them shrinks.</li>
+   <li><b>(b)</b> At constant V (and N), the formula has no T. Molecules move faster but collide proportionally more often, so λ stays the same.</li>
+   <li><b>(c)</b> At constant T, higher P squeezes molecules closer (higher number density) so λ falls.</li>
+   <li><b>(d)</b> Larger V at constant N means lower density, so molecules travel farther before colliding.</li>
+   <li><b>(e)</b> A bigger molecule has a bigger collision cross-section (πd²), so collisions happen sooner.</li>
+  </ul>`},
+ {id:"B-5(a)", src:"Final 2025", marks:3,
+  q:`What are the basic assumptions of the kinetic molecular theory of gases?`,
+  ans:`<ol>
+   <li>A gas consists of a large number of tiny molecules in constant random motion.</li>
+   <li>The volume of the molecules is negligible compared with the volume of the container.</li>
+   <li>There are no attractive or repulsive forces between molecules (except during collisions).</li>
+   <li>Collisions between molecules and with the walls are perfectly elastic (no energy loss).</li>
+   <li>The average kinetic energy is proportional to absolute temperature (KE<sub>avg</sub> = 3/2 kT), and is the same for all gases at the same T.</li>
+   <li>Gas pressure results from molecular collisions with the container walls.</li>
+  </ol>`,
+  exp:`<p>From these assumptions, one derives PV = ⅓ N m v̄² and thus the ideal gas law. Real gases deviate when assumptions 2 and 3 fail: at high pressure (molecular volume matters) and low temperature (attractive forces matter), which is why the van der Waals equation adds corrections.</p>`},
+ {id:"B-5(b)", src:"Final 2025", marks:3,
+  q:`How does mean free path affect thermal conductivity and viscosity of gases?`,
+  ans:`<p>Both are <b>transport properties</b> carried by molecules moving between collisions: a longer mean free path lets each molecule carry momentum (viscosity) or energy (thermal conductivity) farther, so both increase with λ.</p>`,
+  exp:`<div class="eq">η = ⅓ ρ v̄ λ &nbsp;&nbsp;&nbsp; κ = ⅓ ρ v̄ λ C<sub>v</sub> (per unit mass)</div>
+  <ul>
+   <li>Since λ ∝ 1/ρ, the product ρλ is independent of pressure. So <b>η and κ do not change with pressure</b> over a wide range (Maxwell's surprising result).</li>
+   <li>Both rise with temperature as v̄ ∝ √T (unlike liquids, whose viscosity falls with T).</li>
+   <li>At very low pressure, λ becomes comparable to the container size and conductivity then drops with pressure (this is how a vacuum flask insulates).</li>
+  </ul>`},
+ {id:"B-5(c)", src:"Final 2025", marks:4,
+  q:`What is meant by the critical temperature of a gas? Sketch Andrews' P–V isotherms for CO₂ at different temperatures (below, at, and above the critical temperature). (i) Label the regions: liquid, vapor, and liquid–vapor equilibrium. (ii) Indicate critical temperature (T<sub>c</sub>), critical pressure (P<sub>c</sub>), and critical volume (V<sub>c</sub>).`,
+  ans:`<p><b>Critical temperature (T<sub>c</sub>)</b> is the highest temperature at which a gas can be liquefied by applying pressure. Above T<sub>c</sub> no amount of pressure will liquefy it. For CO₂: T<sub>c</sub> ≈ 31 °C (304 K), P<sub>c</sub> ≈ 73 atm, V<sub>c</sub> ≈ 94 cm³/mol.</p>
+  <svg viewBox="0 0 380 270" width="420" role="img" aria-label="Andrews isotherms for CO2">
+   <g stroke="currentColor" stroke-width="1.5" fill="none" style="color:var(--text)">
+    <line x1="45" y1="245" x2="360" y2="245"/><line x1="45" y1="245" x2="45" y2="15"/></g>
+   <text x="205" y="266" text-anchor="middle" font-size="13">Volume (V)</text>
+   <text x="14" y="130" font-size="13" transform="rotate(-90 14 130)" text-anchor="middle">Pressure (P)</text>
+   <path d="M72 165 C 80 125 120 112 150 112 C 180 112 195 135 200 165" stroke="#888" stroke-width="1.5" stroke-dasharray="5 4" fill="#d9822b" fill-opacity=".12"/>
+   <path d="M50 30 C 95 85 150 105 345 165" stroke="#d9534f" stroke-width="2.5" fill="none"/>
+   <path d="M55 38 C 95 95 125 112 150 112 C 175 114 215 165 345 195" stroke="#1f9d55" stroke-width="2.5" fill="none"/>
+   <path d="M63 45 L 73 165 L 200 165 C 230 165 260 205 345 222" stroke="#3b5bdb" stroke-width="2.5" fill="none"/>
+   <circle cx="150" cy="112" r="4.5" fill="#1f9d55"/>
+   <line x1="45" y1="112" x2="150" y2="112" stroke="#888" stroke-dasharray="3 3"/><line x1="150" y1="112" x2="150" y2="245" stroke="#888" stroke-dasharray="3 3"/>
+   <g font-size="12"><text x="8" y="116">P<tspan font-size="9" dy="3">c</tspan></text><text x="144" y="260">V<tspan font-size="9" dy="3">c</tspan></text>
+    <text x="156" y="104">C (critical point)</text>
+    <text x="302" y="150" fill="#d9534f" style="fill:#d9534f">T &gt; T<tspan font-size="9" dy="3">c</tspan></text>
+    <text x="300" y="190" style="fill:#1f9d55">T = T<tspan font-size="9" dy="3">c</tspan></text>
+    <text x="290" y="216" style="fill:#3b5bdb">T &lt; T<tspan font-size="9" dy="3">c</tspan></text>
+    <text x="78" y="85">Liquid</text><text x="235" y="95">Vapor / gas</text><text x="100" y="152">L + V</text></g>
+  </svg>`,
+  exp:`<ul>
+   <li><b>T &lt; T<sub>c</sub> (blue):</b> compressing the vapor reaches a horizontal flat segment where liquid and vapor coexist at constant (vapor) pressure; once all is liquid the curve rises steeply (liquids are almost incompressible).</li>
+   <li><b>T = T<sub>c</sub> (green):</b> the flat segment shrinks to a single inflection point with a horizontal tangent, the critical point (T<sub>c</sub>, P<sub>c</sub>, V<sub>c</sub>). Liquid and vapor become indistinguishable.</li>
+   <li><b>T &gt; T<sub>c</sub> (red):</b> smooth, hyperbola-like curve; the gas never liquefies (supercritical fluid).</li>
+   <li>The dashed dome encloses the liquid–vapor equilibrium region; liquid lies to the left of/above the dome, gas to the right.</li>
+  </ul>
+  <p>In an exam, draw at least three isotherms, shade/label the dome, and mark P<sub>c</sub> and V<sub>c</sub> on the axes with dashed lines from the critical point.</p>`}
+ ]
+},
+{
+ id:"kinetics", name:"Chemical Kinetics", desc:"Reaction order, integrated rate laws, Arrhenius equation.",
+ qs:[
+ {id:"B-4(a)", src:"Final 2025", marks:5,
+  q:`A student notices that doubling the concentration of a reactant has no effect on the rate of reaction. What order of reaction could this be and why? Deduce the integrated rate equation for this order of reaction.`,
+  ans:`<div class="final">Zero order: rate = k[A]⁰ = k &nbsp;→&nbsp; [A] = [A]₀ − kt</div>`,
+  exp:`<p>If rate = k[A]ⁿ and doubling [A] gives the same rate, then 2ⁿ = 1, so n = 0. The rate is constant and independent of concentration (e.g. surface-catalyzed reactions when the surface is saturated).</p>
+  <div class="eq">−d[A]/dt = k<br>
+  ∫ d[A] from [A]₀ to [A] = −k ∫ dt from 0 to t<br>
+  [A] − [A]₀ = −kt &nbsp;⟹&nbsp; <b>[A] = [A]₀ − kt</b></div>
+  <ul>
+   <li>Plot of [A] vs t is a straight line with slope −k.</li>
+   <li>Half-life: t<sub>½</sub> = [A]₀ / 2k (it depends on the initial concentration).</li>
+   <li>Units of k: mol L⁻¹ s⁻¹.</li>
+  </ul>`},
+ {id:"B-4(b)", src:"Final 2025", marks:3,
+  q:`How could you experimentally determine the activation energy of a reaction from the graph using the Arrhenius equation?`,
+  ans:`<p>Measure the rate constant k at several temperatures, plot <b>ln k vs 1/T</b>, and get E<sub>a</sub> from the slope: <b>E<sub>a</sub> = −slope × R</b>.</p>`,
+  exp:`<div class="eq">k = A e<sup>−Ea/RT</sup> &nbsp;⟹&nbsp; ln k = ln A − (E<sub>a</sub>/R)(1/T)</div>
+  <p>This is a straight line y = c + mx, with y = ln k, x = 1/T (in K⁻¹), slope m = −E<sub>a</sub>/R and intercept ln A.</p>
+  <ol>
+   <li>Run the reaction at 4–5 temperatures (in kelvin) and find k at each.</li>
+   <li>Plot ln k (y-axis) against 1/T (x-axis); the line slopes downward.</li>
+   <li>Slope = −E<sub>a</sub>/R, so E<sub>a</sub> = −(slope) × 8.314 J mol⁻¹ K⁻¹.</li>
+   <li>The intercept on the y-axis gives ln A (frequency factor).</li>
+  </ol>
+  <p>Alternative from two points: ln(k₂/k₁) = (E<sub>a</sub>/R)(1/T₁ − 1/T₂).</p>`},
+ {id:"B-4(c)", src:"Final 2025", marks:2,
+  q:`A reaction of the form aA → products is second-order with a rate constant of 0.225 L/(mol·s). If the initial concentration of A is 0.293 mol/L, what is the molar concentration of A after 35.4 s?`,
+  ans:`<div class="final">[A] ≈ 0.0879 mol/L</div>`,
+  exp:`<p>Second-order integrated law:</p>
+  <div class="eq">1/[A] = 1/[A]₀ + kt<br>
+  1/[A] = 1/0.293 + (0.225)(35.4)<br>
+  = 3.413 + 7.965 = 11.378 L/mol<br>
+  [A] = 1/11.378 = 0.0879 mol/L</div>
+  <p>(This is the law derived by integrating −d[A]/dt = k[A]²; half-life t<sub>½</sub> = 1/(k[A]₀).)</p>`}
+ ]
+},
+{
+ id:"organic", name:"Organic Chemistry", desc:"Markovnikov addition, aromaticity, carbonyl reactivity, oxidation.",
+ qs:[
+ {id:"B-6(a)", src:"Final 2025", marks:2,
+  q:`How do you determine which one given below will yield as the minor product? (The scheme shows an alkene, apparently propene, reacting with HBr to give two bromoalkanes: one with Br on the middle carbon and one with Br on the terminal carbon.)`,
+  ans:`<p>Apply <b>Markovnikov's rule</b>: the minor product is the one with Br on the terminal (less substituted) carbon, i.e. <b>1-bromopropane</b>. The major is 2-bromopropane.</p>`,
+  exp:`<p><i>Note: the scheme in the scan was hard to read, so this assumes propene + HBr.</i></p>
+  <ul>
+   <li>H⁺ adds first to the double bond. Adding to C-1 gives a <b>secondary carbocation</b> (at C-2); adding to C-2 would give a less stable <b>primary carbocation</b>.</li>
+   <li>The more stable carbocation (hyperconjugation and inductive effects from more alkyl groups) forms faster, and Br⁻ then attacks it → major product, 2-bromopropane (Br on the carbon with fewer H's, the more substituted one).</li>
+   <li>The product formed through the less stable carbocation, 1-bromopropane, is the minor one (anti-Markovnikov).</li>
+  </ul>
+  <p>Shortcut: "the rich get richer" – H goes to the carbon that already has more hydrogens.</p>`},
+ {id:"B-6(b)", src:"Final 2025", marks:4,
+  q:`What is the difference between anti-aromatic and non-aromatic compounds? Why does benzene undergo electrophilic substitution instead of addition reactions?`,
+  ans:`<table>
+   <tr><th></th><th>Anti-aromatic</th><th>Non-aromatic</th></tr>
+   <tr><td>Structure</td><td>Cyclic, planar, fully conjugated</td><td>Fails at least one of: cyclic, planar, fully conjugated</td></tr>
+   <tr><td>π electrons</td><td>4n (e.g. 4, 8)</td><td>Not applicable</td></tr>
+   <tr><td>Stability</td><td>Destabilized (very reactive), e.g. cyclobutadiene</td><td>Normal, no special effect, e.g. cyclohexene</td></tr></table>`,
+  exp:`<p>Hückel's rule: aromatic = cyclic + planar + fully conjugated + (4n + 2) π electrons. Anti-aromatic has the same first three criteria but 4n π electrons. Anti-aromatic molecules often distort to non-planar shapes to avoid the instability.</p>
+  <h4>Benzene: substitution, not addition</h4>
+  <ul>
+   <li>Benzene has 6 delocalized π electrons and a large resonance (aromatic) stabilization of ≈ 150 kJ/mol.</li>
+   <li>Addition would destroy the aromatic ring, losing this stability, so it is energetically unfavorable.</li>
+   <li>In electrophilic substitution, the electrophile attacks, forming a carbocation (arenium ion); then loss of H⁺ <b>restores the aromatic ring</b>. The net result is substitution with retention of aromaticity.</li>
+  </ul>`},
+ {id:"B-6(c)", src:"Final 2025", marks:4,
+  q:`Why are aldehydes generally more reactive than ketones towards nucleophilic addition reactions? 3.00 g of ethanol is completely oxidized to ethanoic acid. Calculate the mass of ethanoic acid produced, assuming a 100% yield.`,
+  ans:`<p>Aldehydes are less hindered and have a more electrophilic carbonyl carbon.</p>
+  <div class="final">Mass of CH₃COOH ≈ 3.91 g</div>`,
+  exp:`<h4>Reactivity</h4>
+  <ul>
+   <li><b>Steric:</b> an aldehyde has one small H and one R group on the carbonyl carbon; a ketone has two bulky R groups, making it harder for the nucleophile to approach, and the crowded tetrahedral product is less stable.</li>
+   <li><b>Electronic:</b> alkyl groups are electron-donating (+I) and reduce the partial positive charge on the carbonyl carbon. Ketones have two such groups, aldehydes only one, so the aldehyde carbon is more electrophilic.</li>
+  </ul>
+  <h4>Calculation</h4>
+  <div class="eq">C₂H₅OH + 2[O] → CH₃COOH + H₂O (1:1 mole ratio)<br>
+  M(C₂H₅OH) = 46.07 g/mol; M(CH₃COOH) = 60.05 g/mol<br>
+  moles = 3.00 / 46.07 = 0.0651 mol<br>
+  mass = 0.0651 × 60.05 = 3.91 g</div>`}
+ ]
+},
+{
+ id:"fuels", name:"Fuels & Environment", desc:"Octane number, antiknock agents, fertilizers and eutrophication.",
+ qs:[
+ {id:"B-6(a)OR", src:"Final 2025 (OR)", marks:3, or:true,
+  q:`Explain the concept of octane number. Why is iso-octane assigned a value of 100 while n-heptane is 0?`,
+  ans:`<p>The <b>octane number</b> measures a fuel's resistance to knocking (premature auto-ignition) in an engine. It equals the percentage of iso-octane in an iso-octane/n-heptane mixture that matches the fuel's knocking behavior.</p>`,
+  exp:`<ul>
+   <li>The scale is an arbitrary reference: <b>iso-octane (2,2,4-trimethylpentane)</b> burns smoothly and resists knock, so it was defined as 100; <b>n-heptane</b>, a straight-chain alkane that knocks badly, was defined as 0.</li>
+   <li>Branched hydrocarbons give more stable free-radical intermediates and are harder to auto-ignite under compression, so they burn evenly.</li>
+   <li>Straight-chain alkanes oxidize and ignite spontaneously under pressure, causing knocking.</li>
+   <li>Example: gasoline with octane number 90 behaves like a 90 % iso-octane + 10 % n-heptane blend.</li>
+  </ul>`},
+ {id:"B-6(b)OR", src:"Final 2025 (OR)", marks:4, or:true,
+  q:`Discuss the environmental impact of excessive fertilizer use, particularly in terms of eutrophication.`,
+  ans:`<p>Excess N and P fertilizer runs off into water bodies, causing <b>eutrophication</b>: algal blooms → oxygen depletion → death of aquatic life.</p>`,
+  exp:`<ol>
+   <li><b>Nutrient runoff:</b> unused nitrate and phosphate wash into rivers and lakes.</li>
+   <li><b>Algal bloom:</b> nutrients fuel rapid growth of algae, covering the surface and blocking sunlight.</li>
+   <li><b>Die-off and decomposition:</b> dead algae are decomposed by bacteria that consume dissolved O₂ (high BOD).</li>
+   <li><b>Hypoxia / dead zones:</b> low oxygen kills fish and other organisms, reducing biodiversity; some algae release toxins.</li>
+  </ol>
+  <p><b>Other impacts:</b> nitrate contamination of groundwater (health risk: methemoglobinemia, or "blue baby syndrome"), N₂O emission (potent greenhouse gas), soil acidification and loss of soil health.</p>
+  <p><b>Remedies:</b> precise fertilizer application, buffer strips, crop rotation, organic or slow-release fertilizer.</p>`},
+ {id:"B-6(c)OR", src:"Final 2025 (OR)", marks:3, or:true,
+  q:`Why is tetraethyl lead no longer used as an antiknock additive in petrol? What alternatives are used today?`,
+  ans:`<p>Tetraethyl lead (TEL) was phased out because it is a <b>toxic pollutant</b> and it <b>poisons catalytic converters</b>.</p>`,
+  exp:`<ul>
+   <li>Combustion releases lead compounds into the air, soil and water; lead is a neurotoxin, especially harmful to children's brain development.</li>
+   <li>Lead deactivates the platinum/palladium/rhodium catalysts in catalytic converters, so cars could not meet emission standards for CO, NOx and hydrocarbons.</li>
+  </ul>
+  <p><b>Alternatives:</b></p>
+  <ul>
+   <li>Oxygenates such as <b>ethanol</b>, ETBE and MTBE (MTBE use has been reduced in many countries due to groundwater contamination)</li>
+   <li>Refinery processes: catalytic reforming, alkylation and isomerization to produce high-octane branched hydrocarbons and aromatics</li>
+   <li>Other additives such as MMT (methylcyclopentadienyl manganese tricarbonyl) in some regions</li>
+  </ul>`}
+ ]
+}
+];
+
+/* ================= APP ================= */
+const $ = s => document.querySelector(s);
+const STORE = "che101_practice_v1";
+let state = {status:{}};          // id -> 'done' | 'review'
+try { const raw = localStorage.getItem(STORE); if (raw) state = JSON.parse(raw) || state; } catch(e){}
+function save(){ try{ localStorage.setItem(STORE, JSON.stringify(state)); }catch(e){} }
+
+let activeTopic = "all";
+let onlyOpen = false;
+const allQs = TOPICS.flatMap(t => t.qs.map(q => ({...q, topic:t.id})));
+
+function esc(s){return String(s).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]));}
+
+function renderChips(){
+  const nav = $("#topics");
+  let h = `<button class="chip ${activeTopic==="all"?"on":""}" data-t="all">All<small>${allQs.length}</small></button>`;
+  TOPICS.forEach(t=>{
+    h += `<button class="chip ${activeTopic===t.id?"on":""}" data-t="${t.id}">${esc(t.name)}<small>${t.qs.length}</small></button>`;
+  });
+  nav.innerHTML = h;
+  nav.querySelectorAll(".chip").forEach(b=>b.onclick=()=>{activeTopic=b.dataset.t; render(); window.scrollTo({top:0,behavior:"smooth"});});
+}
+
+function renderStats(){
+  const done = allQs.filter(q=>state.status[q.id]==="done").length;
+  const rev = allQs.filter(q=>state.status[q.id]==="review").length;
+  $("#stTotal").textContent = allQs.length + " questions";
+  $("#stDone").textContent = "✓ " + done + " mastered";
+  $("#stRev").textContent = "↻ " + rev + " to review";
+  $("#barFill").style.width = (done/allQs.length*100) + "%";
+}
+
+function cardHTML(q){
+  const st = state.status[q.id];
+  return `<article class="card ${st||""}" data-id="${q.id}">
+    <div class="meta"><span class="qid">Q ${esc(q.id)}</span><span class="tag">${esc(q.src)}</span>${q.or?'<span class="tag or">OR option</span>':''}<span class="tag">${q.marks} marks</span></div>
+    <div class="q">${q.q}</div>
+    <div class="actions">
+      <button class="btn primary toggle" aria-expanded="false">Show answer</button>
+      <button class="btn good ${st==="done"?"on":""}" data-act="done">✓ Got it</button>
+      <button class="btn warn ${st==="review"?"on":""}" data-act="review">↻ Review later</button>
+    </div>
+    <div class="answer" role="region">
+      <h4>Answer</h4>${q.ans}
+      <h4>Explanation</h4>${q.exp}
+    </div>
+  </article>`;
+}
+
+function render(){
+  renderChips(); renderStats();
+  const main = $("#main");
+  let html = "";
+  const list = activeTopic==="all" ? TOPICS : TOPICS.filter(t=>t.id===activeTopic);
+  list.forEach(t=>{
+    let qs = t.qs.filter(q => !onlyOpen || state.status[q.id]!=="done");
+    if(!qs.length) return;
+    html += `<h2 class="topic-title">${esc(t.name)}</h2><p class="topic-desc">${esc(t.desc)}</p>`;
+    html += qs.map(cardHTML).join("");
+  });
+  main.innerHTML = html || `<div class="empty">🎉 Nothing left here – everything in this view is mastered.</div>`;
+  $("#btnFilter").textContent = onlyOpen ? "Showing: Not mastered (click for all)" : "Only show: Not mastered";
+}
+
+document.addEventListener("click", e=>{
+  const card = e.target.closest(".card"); if(!card) return;
+  const id = card.dataset.id;
+  if(e.target.classList.contains("toggle")){
+    const ans = card.querySelector(".answer");
+    const open = ans.classList.toggle("open");
+    e.target.textContent = open ? "Hide answer" : "Show answer";
+    e.target.setAttribute("aria-expanded", open);
+  } else if(e.target.dataset.act){
+    const act = e.target.dataset.act;
+    state.status[id] = state.status[id]===act ? undefined : act;
+    if(!state.status[id]) delete state.status[id];
+    save();
+    card.className = "card " + (state.status[id]||"");
+    card.querySelector('[data-act="done"]').classList.toggle("on", state.status[id]==="done");
+    card.querySelector('[data-act="review"]').classList.toggle("on", state.status[id]==="review");
+    renderStats();
+  }
+});
+
+function setAll(open){
+  document.querySelectorAll(".card").forEach(c=>{
+    c.querySelector(".answer").classList.toggle("open", open);
+    const b=c.querySelector(".toggle"); b.textContent = open?"Hide answer":"Show answer"; b.setAttribute("aria-expanded",open);
+  });
+}
+$("#btnShowAll").onclick=()=>setAll(true);
+$("#btnHideAll").onclick=()=>setAll(false);
+$("#btnFilter").onclick=()=>{onlyOpen=!onlyOpen; render();};
+$("#btnReset").onclick=()=>{ if(confirm("Reset all your progress?")){ state={status:{}}; save(); render(); } };
+
+render();
+</script>
+</body>
+</html>
